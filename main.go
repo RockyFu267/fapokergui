@@ -10,6 +10,25 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// Card 定义扑克牌结构体
+type Card struct {
+	Suit string
+	Rank string
+}
+
+// generateDeck 生成一副 52 张扑克牌
+func generateDeck() []Card {
+	suits := []string{"♥", "♦", "♣", "♠"}
+	ranks := []string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
+	deck := make([]Card, 0, 52)
+	for _, suit := range suits {
+		for _, rank := range ranks {
+			deck = append(deck, Card{Suit: suit, Rank: rank})
+		}
+	}
+	return deck
+}
+
 // 自定义主题，用于修改按钮背景颜色
 type customTheme struct{}
 
@@ -41,6 +60,8 @@ func (c customTheme) Size(name fyne.ThemeSizeName) float32 {
 }
 
 func main() {
+	// 生成一副扑克牌
+	deck := generateDeck()
 	// 创建一个新的 Fyne 应用
 	a := app.New()
 	// 设置自定义主题
@@ -115,29 +136,47 @@ func main() {
 	newRowCount := 0
 	// 创建 "+add" 按钮
 	addButton := widget.NewButton("+add", func() {
-		// 这里可以添加点击 "+add" 按钮后的处理逻辑
 		println("+add 按钮被点击了！")
-		// // 计算新按钮的起始 y 坐标，假设新按钮在已有按钮下方 10 像素间隔
-		// newY := float32(30 + 90 + 10 + newRowCount*(90+10))
-		// 生成两个新的按钮
+
 		for i := 0; i < 2; i++ {
-			newButton := widget.NewButton("", func() {
-				println("新长方形被点击了！")
-			})
-			newButton.Resize(fyne.NewSize(50, 90))
-			// 计算新按钮的 x 坐标
+			newButton := widget.NewButton("", nil) // 先创建按钮
 			newX := float32(i * 55)
-			// 计算新按钮的 y 坐标
 			newY := float32(30 + 90 + 10 + newRowCount*(90+10))
+
+			newButton.OnTapped = func() {
+				println("新长方形被点击了！")
+
+				// 生成扑克牌选项
+				cardOptions := make([]string, len(deck))
+				for j, card := range deck {
+					cardOptions[j] = card.Suit + card.Rank
+				}
+
+				// 先声明 selectCard 变量
+				var selectCard *widget.Select
+				selectCard = widget.NewSelect(cardOptions, func(selected string) {
+					newButton.SetText(selected)          // 更新按钮文本
+					positionContainer.Remove(selectCard) // 选择完后移除下拉菜单
+					positionContainer.Refresh()
+				})
+
+				selectCard.Resize(fyne.NewSize(50, 30))
+				selectCard.Move(fyne.NewPos(newX, newY+100)) // 让下拉菜单显示在按钮下方
+
+				positionContainer.Add(selectCard)
+				positionContainer.Refresh()
+			}
+
+			newButton.Resize(fyne.NewSize(50, 90))
 			newButton.Move(fyne.NewPos(newX, newY))
+			newButton.Importance = widget.HighImportance // 让字体填充按钮
 			positionContainer.Add(newButton)
 		}
-		// 新增按钮行数加 1
-		newRowCount++
-		// 刷新容器以显示新添加的按钮
-		positionContainer.Refresh()
 
+		newRowCount++
+		positionContainer.Refresh()
 	})
+
 	// 设置按钮大小
 	addButton.Resize(fyne.NewSize(50, 30))
 	// 设置按钮位置，放置在现有按钮下方
