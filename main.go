@@ -131,69 +131,75 @@ func main() {
 	// 将按钮移动到左上角 (220, 0) 的位置
 	clickableRectflop05.Move(fyne.NewPos(220, 30))
 
+	// 记录选中的牌，key 是 "A♠"
+	selectedCards := make(map[string]bool)
+
 	// 记录新增按钮的行数
 	newRowCount := 0
 
 	// 维护所有行的数据结构
-	var allRows [][]fyne.CanvasObject // 存储所有新增行
+	var allRows [][]fyne.CanvasObject
 
 	// 创建 "+add" 按钮
 	addButton := widget.NewButton("+add", func() {
 		println("+add 按钮被点击了！")
 
-		// 这一行的按钮列表
 		rowButtons := []fyne.CanvasObject{}
 
 		for i := 0; i < 2; i++ {
-			newButton := widget.NewButton("", nil) // 先创建按钮
+			newButton := widget.NewButton("", nil)
 			newX := float32(i * 55)
 			newY := float32(30 + 90 + 10 + newRowCount*(90+10))
 
-			var popup *widget.PopUp // 先声明 popup 变量
+			var popup *widget.PopUp
 
 			newButton.OnTapped = func() {
 				println("新长方形被点击了！")
 
-				// 创建一个容器用于放置扑克牌选项
+				// 生成所有扑克牌选项，并根据状态变灰
 				cardButtons := []fyne.CanvasObject{}
-
-				// 定义德州扑克的牌序
 				pokerRanks := []string{"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
-				suits := []string{"♠", "♥", "♣", "♦"} // 每列一个花色
+				suits := []string{"♠", "♥", "♣", "♦"}
 
-				for _, rank := range pokerRanks { // 先遍历牌面值
-					for _, suit := range suits { // 再按花色填充列
+				for _, rank := range pokerRanks {
+					for _, suit := range suits {
 						cardText := rank + suit
 						cardButton := widget.NewButton(cardText, func() {
-							newButton.SetText(cardText) // 选择后更新按钮文本
-							popup.Hide()                // 关闭弹窗
+							// 如果按钮上已有牌，则先释放它
+							if oldCard := newButton.Text; oldCard != "" {
+								delete(selectedCards, oldCard)
+							}
+
+							newButton.SetText(cardText)    // 选择后更新按钮文本
+							selectedCards[cardText] = true // 标记该牌已被选中
+							popup.Hide()                   // 关闭弹窗
 						})
-						cardButton.Importance = widget.HighImportance // 让字体填充按钮
+
+						if selectedCards[cardText] {
+							cardButton.Disable() // 变灰并禁用
+						}
+
+						cardButton.Importance = widget.HighImportance
 						cardButtons = append(cardButtons, cardButton)
 					}
 				}
+
 				// 创建 4 列网格布局
 				cardGrid := container.NewGridWithColumns(4, cardButtons...)
-
-				// 创建弹窗并赋值给 popup
 				popup = widget.NewModalPopUp(cardGrid, w.Canvas())
 				popup.Show()
 			}
 
 			newButton.Resize(fyne.NewSize(50, 90))
 			newButton.Move(fyne.NewPos(newX, newY))
-			newButton.Importance = widget.HighImportance // 让字体填充按钮
+			newButton.Importance = widget.HighImportance
+
 			positionContainer.Add(newButton)
 
-			rowButtons = append(rowButtons, newButton) // 记录按钮
+			rowButtons = append(rowButtons, newButton)
 		}
 
-		// // 先声明 deleteButton
-		// var deleteButton *widget.Button
-
-		// 创建 "delete" 按钮
 		deleteButton := widget.NewButton("del", func() {
-			// 找到当前行的索引
 			rowIndex := -1
 			for i, row := range allRows {
 				if len(row) > 0 && row[0] == rowButtons[0] {
@@ -203,34 +209,35 @@ func main() {
 			}
 
 			if rowIndex != -1 {
-				// 删除当前行的按钮
 				for _, btn := range allRows[rowIndex] {
+					if textBtn, ok := btn.(*widget.Button); ok {
+						if textBtn.Text != "" {
+							delete(selectedCards, textBtn.Text) // 释放牌
+						}
+					}
 					positionContainer.Remove(btn)
 				}
-				allRows = append(allRows[:rowIndex], allRows[rowIndex+1:]...) // 移除当前行
+				allRows = append(allRows[:rowIndex], allRows[rowIndex+1:]...)
 
-				// 重新排列剩余按钮的位置
 				for i := rowIndex; i < len(allRows); i++ {
 					for j, btn := range allRows[i] {
-						newX := float32(j * 55) // X 轴不变
+						newX := float32(j * 55)
 						newY := float32(30 + 90 + 10 + i*(90+10))
 						btn.Move(fyne.NewPos(newX, newY))
 					}
 				}
 
-				// 更新行计数
 				newRowCount--
 				positionContainer.Refresh()
 			}
 		})
 
 		deleteButton.Resize(fyne.NewSize(25, 15))
-		deleteButton.Move(fyne.NewPos(110, 30+90+10+float32(newRowCount*(90+10)))) // 右侧对齐
+		deleteButton.Move(fyne.NewPos(110, 30+90+10+float32(newRowCount*(90+10))))
 		positionContainer.Add(deleteButton)
 
-		// 把 delete 按钮加到 rowButtons
 		rowButtons = append(rowButtons, deleteButton)
-		allRows = append(allRows, rowButtons) // 存储这一行
+		allRows = append(allRows, rowButtons)
 		newRowCount++
 		positionContainer.Refresh()
 	})
