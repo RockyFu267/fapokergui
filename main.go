@@ -18,6 +18,9 @@ func (c customTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) 
 	if name == theme.ColorNameButton && variant == theme.VariantLight {
 		// 设置按钮背景颜色为金色
 		return color.RGBA{R: 255, G: 215, B: 0, A: 255}
+	} else if name == theme.ColorNameBackground {
+		// 设置窗口背景颜色为灰色
+		return color.RGBA{R: 200, G: 200, B: 200, A: 255}
 	}
 	return theme.DefaultTheme().Color(name, variant)
 }
@@ -107,6 +110,19 @@ func main() {
 	clickableRectflop04.Move(fyne.NewPos(165, 30))
 	// 将按钮移动到左上角 (220, 0) 的位置
 	clickableRectflop05.Move(fyne.NewPos(220, 30))
+
+	// 创建 "+add" 按钮
+	addButton := widget.NewButton("+add", func() {
+		// 这里可以添加点击 "+add" 按钮后的处理逻辑
+		println("+add 按钮被点击了！")
+	})
+	// 设置按钮大小
+	addButton.Resize(fyne.NewSize(50, 30))
+	// 设置按钮位置，放置在现有按钮下方
+	addButton.Move(fyne.NewPos(280, 30))
+
+	// 将 "+add" 按钮添加到绝对定位容器中
+	positionContainer.Add(addButton)
 
 	// 使用 NewPadded 容器将绝对定位容器居中显示在窗口中
 	content := container.NewPadded(positionContainer)
