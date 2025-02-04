@@ -133,9 +133,16 @@ func main() {
 
 	// 记录新增按钮的行数
 	newRowCount := 0
+
+	// 维护所有行的数据结构
+	var allRows [][]fyne.CanvasObject // 存储所有新增行
+
 	// 创建 "+add" 按钮
 	addButton := widget.NewButton("+add", func() {
 		println("+add 按钮被点击了！")
+
+		// 这一行的按钮列表
+		rowButtons := []fyne.CanvasObject{}
 
 		for i := 0; i < 2; i++ {
 			newButton := widget.NewButton("", nil) // 先创建按钮
@@ -149,8 +156,13 @@ func main() {
 
 				// 创建一个容器用于放置扑克牌选项
 				cardButtons := []fyne.CanvasObject{}
-				for _, suit := range []string{"♥", "♦", "♣", "♠"} {
-					for _, rank := range []string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"} {
+
+				// 定义德州扑克的牌序
+				pokerRanks := []string{"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
+				suits := []string{"♠", "♥", "♣", "♦"} // 每列一个花色
+
+				for _, rank := range pokerRanks { // 先遍历牌面值
+					for _, suit := range suits { // 再按花色填充列
 						cardText := rank + suit
 						cardButton := widget.NewButton(cardText, func() {
 							newButton.SetText(cardText) // 选择后更新按钮文本
@@ -160,7 +172,6 @@ func main() {
 						cardButtons = append(cardButtons, cardButton)
 					}
 				}
-
 				// 创建 4 列网格布局
 				cardGrid := container.NewGridWithColumns(4, cardButtons...)
 
@@ -173,8 +184,53 @@ func main() {
 			newButton.Move(fyne.NewPos(newX, newY))
 			newButton.Importance = widget.HighImportance // 让字体填充按钮
 			positionContainer.Add(newButton)
+
+			rowButtons = append(rowButtons, newButton) // 记录按钮
 		}
 
+		// // 先声明 deleteButton
+		// var deleteButton *widget.Button
+
+		// 创建 "delete" 按钮
+		deleteButton := widget.NewButton("del", func() {
+			// 找到当前行的索引
+			rowIndex := -1
+			for i, row := range allRows {
+				if len(row) > 0 && row[0] == rowButtons[0] {
+					rowIndex = i
+					break
+				}
+			}
+
+			if rowIndex != -1 {
+				// 删除当前行的按钮
+				for _, btn := range allRows[rowIndex] {
+					positionContainer.Remove(btn)
+				}
+				allRows = append(allRows[:rowIndex], allRows[rowIndex+1:]...) // 移除当前行
+
+				// 重新排列剩余按钮的位置
+				for i := rowIndex; i < len(allRows); i++ {
+					for j, btn := range allRows[i] {
+						newX := float32(j * 55) // X 轴不变
+						newY := float32(30 + 90 + 10 + i*(90+10))
+						btn.Move(fyne.NewPos(newX, newY))
+					}
+				}
+
+				// 更新行计数
+				newRowCount--
+				positionContainer.Refresh()
+			}
+		})
+
+		deleteButton.Resize(fyne.NewSize(25, 15))
+		deleteButton.Move(fyne.NewPos(110, 30+90+10+float32(newRowCount*(90+10)))) // 右侧对齐
+		positionContainer.Add(deleteButton)
+
+		// 把 delete 按钮加到 rowButtons
+		rowButtons = append(rowButtons, deleteButton)
+		allRows = append(allRows, rowButtons) // 存储这一行
 		newRowCount++
 		positionContainer.Refresh()
 	})
