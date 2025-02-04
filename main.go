@@ -60,8 +60,7 @@ func (c customTheme) Size(name fyne.ThemeSizeName) float32 {
 }
 
 func main() {
-	// 生成一副扑克牌
-	deck := generateDeck()
+
 	// 创建一个新的 Fyne 应用
 	a := app.New()
 	// 设置自定义主题
@@ -143,28 +142,31 @@ func main() {
 			newX := float32(i * 55)
 			newY := float32(30 + 90 + 10 + newRowCount*(90+10))
 
+			var popup *widget.PopUp // 先声明 popup 变量
+
 			newButton.OnTapped = func() {
 				println("新长方形被点击了！")
 
-				// 生成扑克牌选项
-				cardOptions := make([]string, len(deck))
-				for j, card := range deck {
-					cardOptions[j] = card.Suit + card.Rank
+				// 创建一个容器用于放置扑克牌选项
+				cardButtons := []fyne.CanvasObject{}
+				for _, suit := range []string{"♥", "♦", "♣", "♠"} {
+					for _, rank := range []string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"} {
+						cardText := rank + suit
+						cardButton := widget.NewButton(cardText, func() {
+							newButton.SetText(cardText) // 选择后更新按钮文本
+							popup.Hide()                // 关闭弹窗
+						})
+						cardButton.Importance = widget.HighImportance // 让字体填充按钮
+						cardButtons = append(cardButtons, cardButton)
+					}
 				}
 
-				// 先声明 selectCard 变量
-				var selectCard *widget.Select
-				selectCard = widget.NewSelect(cardOptions, func(selected string) {
-					newButton.SetText(selected)          // 更新按钮文本
-					positionContainer.Remove(selectCard) // 选择完后移除下拉菜单
-					positionContainer.Refresh()
-				})
+				// 创建 4 列网格布局
+				cardGrid := container.NewGridWithColumns(4, cardButtons...)
 
-				selectCard.Resize(fyne.NewSize(50, 30))
-				selectCard.Move(fyne.NewPos(newX, newY+100)) // 让下拉菜单显示在按钮下方
-
-				positionContainer.Add(selectCard)
-				positionContainer.Refresh()
+				// 创建弹窗并赋值给 popup
+				popup = widget.NewModalPopUp(cardGrid, w.Canvas())
+				popup.Show()
 			}
 
 			newButton.Resize(fyne.NewSize(50, 90))
