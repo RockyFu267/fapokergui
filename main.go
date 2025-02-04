@@ -111,10 +111,32 @@ func main() {
 	// 将按钮移动到左上角 (220, 0) 的位置
 	clickableRectflop05.Move(fyne.NewPos(220, 30))
 
+	// 记录新增按钮的行数
+	newRowCount := 0
 	// 创建 "+add" 按钮
 	addButton := widget.NewButton("+add", func() {
 		// 这里可以添加点击 "+add" 按钮后的处理逻辑
 		println("+add 按钮被点击了！")
+		// // 计算新按钮的起始 y 坐标，假设新按钮在已有按钮下方 10 像素间隔
+		// newY := float32(30 + 90 + 10 + newRowCount*(90+10))
+		// 生成两个新的按钮
+		for i := 0; i < 2; i++ {
+			newButton := widget.NewButton("", func() {
+				println("新长方形被点击了！")
+			})
+			newButton.Resize(fyne.NewSize(50, 90))
+			// 计算新按钮的 x 坐标
+			newX := float32(i * 55)
+			// 计算新按钮的 y 坐标
+			newY := float32(30 + 90 + 10 + newRowCount*(90+10))
+			newButton.Move(fyne.NewPos(newX, newY))
+			positionContainer.Add(newButton)
+		}
+		// 新增按钮行数加 1
+		newRowCount++
+		// 刷新容器以显示新添加的按钮
+		positionContainer.Refresh()
+
 	})
 	// 设置按钮大小
 	addButton.Resize(fyne.NewSize(50, 30))
