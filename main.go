@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -284,27 +285,38 @@ func main() {
 		println("GO 按钮被点击了！")
 		// 遍历每一行的按钮
 		for rowIndex, row := range allRows {
+			var flopCards []string
+			for _, btn := range flopButtons {
+				// if btn.Text != "?" {
+				flopCards = append(flopCards, btn.Text)
+				// }
+			}
 			// 收集这一行的手牌
 			var handResult string
 			for _, btn := range row {
-				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "?" {
-					handResult += textBtn.Text + " " // 将这一行的手牌连接起来
+				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "del" {
+					handResult += textBtn.Text + " " + flopCards[0] + flopCards[1] + flopCards[2] + flopCards[3] + flopCards[4] // 将这一行的手牌连接起来
 				}
 			}
 
-			// 创建并显示手牌结果
+			// 创建并显示手牌结果作为按钮
 			// 每一行右侧偏移 100 的位置
-			resultLabel := widget.NewLabel(handResult)
-			resultLabel.Resize(fyne.NewSize(200, 20))                           // 设置合适的宽度和高度
-			resultLabel.Move(fyne.NewPos(200, float32(30+90+10+rowIndex*(65)))) // 右侧位置调整
+			resultButton := widget.NewButton(handResult, func() {
+				// 在这里处理按钮的点击事件
+				fmt.Println("手牌结果被点击："+handResult, flopCards)
+			})
 
-			// 将结果标签添加到绝对定位容器中
-			positionContainer.Add(resultLabel)
+			resultButton.Resize(fyne.NewSize(150, 30))                           // 设置合适的宽度和高度
+			resultButton.Move(fyne.NewPos(150, float32(30+90+10+rowIndex*(65)))) // 右侧位置调整
+
+			// 将结果按钮添加到绝对定位容器中
+			positionContainer.Add(resultButton)
 		}
 
 		// 刷新容器以显示更新后的布局
 		positionContainer.Refresh()
 	})
+
 	// 设置按钮大小
 	executeButton.Resize(fyne.NewSize(80, 20))
 	// 设置按钮位置，放置在现有按钮下方
