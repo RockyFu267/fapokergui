@@ -76,46 +76,9 @@ func main() {
 
 	// 创建一个可点击的按钮来模拟长方形
 	clickableRectflop01 := widget.NewButton("", func() {
+		// 这里可以添加按钮点击后的处理逻辑
+		// 例如打印日志，当前仅作示例
 		println("clickableRectflop01 被点击了！")
-		clickableRectflop01 := widget.NewButton("", nil)
-		var popup *widget.PopUp
-		println("新长方形被点击了！")
-
-		// 生成所有扑克牌选项，并根据状态变灰
-		cardButtons := []fyne.CanvasObject{}
-		pokerRanks := []string{"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
-		suits := []string{"♠", "♥", "♣", "♦"}
-
-		for _, rank := range pokerRanks {
-			for _, suit := range suits {
-				cardText := rank + suit
-				cardButton := widget.NewButton(cardText, func() {
-					// 如果按钮上已有牌，则先释放它
-					if oldCard := clickableRectflop01.Text; oldCard != "" {
-						delete(selectedCards, oldCard)
-					}
-
-					clickableRectflop01.SetText(cardText) // 选择后更新按钮文本
-					selectedCards[cardText] = true        // 标记该牌已被选中
-					popup.Hide()                          // 关闭弹窗
-				})
-
-				if selectedCards[cardText] {
-					cardButton.Disable() // 变灰并禁用
-				}
-
-				cardButton.Importance = widget.HighImportance
-				cardButtons = append(cardButtons, cardButton)
-			}
-		}
-
-		// 创建 4 列网格布局
-		cardGrid := container.NewGridWithColumns(4, cardButtons...)
-		popup = widget.NewModalPopUp(cardGrid, w.Canvas())
-		popup.Show()
-		clickableRectflop01.Resize(fyne.NewSize(50, 90))
-		clickableRectflop01.Move(fyne.NewPos(0, 30))
-		clickableRectflop01.Importance = widget.HighImportance
 	})
 
 	// 创建一个可点击的按钮来模拟长方形
@@ -187,7 +150,7 @@ func main() {
 		for i := 0; i < 2; i++ {
 			newButton := widget.NewButton("", nil)
 			newX := float32(i * 55)
-			newY := float32(30 + 90 + 10 + newRowCount*(90+10))
+			newY := float32(30 + 90 + 10 + newRowCount*(65))
 
 			var popup *widget.PopUp
 
@@ -228,7 +191,7 @@ func main() {
 				popup.Show()
 			}
 
-			newButton.Resize(fyne.NewSize(50, 90))
+			newButton.Resize(fyne.NewSize(30, 50))
 			newButton.Move(fyne.NewPos(newX, newY))
 			newButton.Importance = widget.HighImportance
 
@@ -260,7 +223,7 @@ func main() {
 				for i := rowIndex; i < len(allRows); i++ {
 					for j, btn := range allRows[i] {
 						newX := float32(j * 55)
-						newY := float32(30 + 90 + 10 + i*(90+10))
+						newY := float32(30 + 90 + 10 + i*(65))
 						btn.Move(fyne.NewPos(newX, newY))
 					}
 				}
@@ -271,7 +234,7 @@ func main() {
 		})
 
 		deleteButton.Resize(fyne.NewSize(25, 15))
-		deleteButton.Move(fyne.NewPos(110, 30+90+10+float32(newRowCount*(90+10))))
+		deleteButton.Move(fyne.NewPos(110, 30+90+10+float32(newRowCount*(65))))
 		positionContainer.Add(deleteButton)
 
 		rowButtons = append(rowButtons, deleteButton)
