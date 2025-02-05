@@ -141,8 +141,15 @@ func main() {
 	// 维护所有行的数据结构
 	var allRows [][]fyne.CanvasObject
 
+	var addButton *widget.Button // 先声明变量
 	// 创建 "+add" 按钮
-	addButton := widget.NewButton("+add", func() {
+	addButton = widget.NewButton("+add", func() {
+		if newRowCount >= 10 {
+			println("行数已达上限，直接返回")
+			addButton.Disable() // 禁用 "+add" 按钮
+			return              // 如果行数已达上限，直接返回
+		}
+
 		println("+add 按钮被点击了！")
 
 		rowButtons := []fyne.CanvasObject{}
@@ -229,6 +236,9 @@ func main() {
 				}
 
 				newRowCount--
+				if newRowCount < 10 {
+					addButton.Enable() // 重新启用 "+add" 按钮
+				}
 				positionContainer.Refresh()
 			}
 		})
