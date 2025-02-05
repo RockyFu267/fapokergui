@@ -60,6 +60,8 @@ func (c customTheme) Size(name fyne.ThemeSizeName) float32 {
 }
 
 func main() {
+	// 记录选中的牌，key 是 "A♠"
+	selectedCards := make(map[string]bool)
 
 	// 创建一个新的 Fyne 应用
 	a := app.New()
@@ -74,10 +76,48 @@ func main() {
 
 	// 创建一个可点击的按钮来模拟长方形
 	clickableRectflop01 := widget.NewButton("", func() {
-		// 这里可以添加按钮点击后的处理逻辑
-		// 例如打印日志，当前仅作示例
-		println("长方形被点击了！")
+		println("clickableRectflop01 被点击了！")
+		clickableRectflop01 := widget.NewButton("", nil)
+		var popup *widget.PopUp
+		println("新长方形被点击了！")
+
+		// 生成所有扑克牌选项，并根据状态变灰
+		cardButtons := []fyne.CanvasObject{}
+		pokerRanks := []string{"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
+		suits := []string{"♠", "♥", "♣", "♦"}
+
+		for _, rank := range pokerRanks {
+			for _, suit := range suits {
+				cardText := rank + suit
+				cardButton := widget.NewButton(cardText, func() {
+					// 如果按钮上已有牌，则先释放它
+					if oldCard := clickableRectflop01.Text; oldCard != "" {
+						delete(selectedCards, oldCard)
+					}
+
+					clickableRectflop01.SetText(cardText) // 选择后更新按钮文本
+					selectedCards[cardText] = true        // 标记该牌已被选中
+					popup.Hide()                          // 关闭弹窗
+				})
+
+				if selectedCards[cardText] {
+					cardButton.Disable() // 变灰并禁用
+				}
+
+				cardButton.Importance = widget.HighImportance
+				cardButtons = append(cardButtons, cardButton)
+			}
+		}
+
+		// 创建 4 列网格布局
+		cardGrid := container.NewGridWithColumns(4, cardButtons...)
+		popup = widget.NewModalPopUp(cardGrid, w.Canvas())
+		popup.Show()
+		clickableRectflop01.Resize(fyne.NewSize(50, 90))
+		clickableRectflop01.Move(fyne.NewPos(0, 30))
+		clickableRectflop01.Importance = widget.HighImportance
 	})
+
 	// 创建一个可点击的按钮来模拟长方形
 	clickableRectflop02 := widget.NewButton("", func() {
 		// 这里可以添加按钮点击后的处理逻辑
@@ -102,6 +142,7 @@ func main() {
 		// 例如打印日志，当前仅作示例
 		println("长方形被点击了！")
 	})
+
 	// 设置按钮的大小为 50x90
 	clickableRectflop01.Resize(fyne.NewSize(50, 90))
 	// 设置按钮的大小为 50x90
@@ -120,19 +161,16 @@ func main() {
 	positionContainer.Add(clickableRectflop03)
 	positionContainer.Add(clickableRectflop04)
 	positionContainer.Add(clickableRectflop05)
-	// 将按钮移动到左上角 (0, 0) 的位置
+	// 将按钮移动到左上角 (0, 30) 的位置
 	clickableRectflop01.Move(fyne.NewPos(0, 30))
-	// 将按钮移动到左上角 (55, 0) 的位置
+	// 将按钮移动到左上角 (55, 30) 的位置
 	clickableRectflop02.Move(fyne.NewPos(55, 30))
-	// 将按钮移动到左上角 (110, 0) 的位置
+	// 将按钮移动到左上角 (110, 30) 的位置
 	clickableRectflop03.Move(fyne.NewPos(110, 30))
-	// 将按钮移动到左上角 (165, 0) 的位置
+	// 将按钮移动到左上角 (165, 30) 的位置
 	clickableRectflop04.Move(fyne.NewPos(165, 30))
-	// 将按钮移动到左上角 (220, 0) 的位置
+	// 将按钮移动到左上角 (220, 30) 的位置
 	clickableRectflop05.Move(fyne.NewPos(220, 30))
-
-	// 记录选中的牌，key 是 "A♠"
-	selectedCards := make(map[string]bool)
 
 	// 记录新增按钮的行数
 	newRowCount := 0
