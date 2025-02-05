@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -282,32 +281,29 @@ func main() {
 
 	// 创建执行运算按钮
 	executeButton := widget.NewButton("GO", func() {
-		// 在这里执行你的运算逻辑
-		println("执行运算按钮被点击！")
-		// 在这里收集所有手牌和公共牌数据
-		var playerHands []string
-		for _, row := range allRows {
+		println("GO 按钮被点击了！")
+		// 遍历每一行的按钮
+		for rowIndex, row := range allRows {
+			// 收集这一行的手牌
+			var handResult string
 			for _, btn := range row {
 				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "?" {
-					playerHands = append(playerHands, textBtn.Text)
+					handResult += textBtn.Text + " " // 将这一行的手牌连接起来
 				}
 			}
+
+			// 创建并显示手牌结果
+			// 每一行右侧偏移 100 的位置
+			resultLabel := widget.NewLabel(handResult)
+			resultLabel.Resize(fyne.NewSize(200, 20))                           // 设置合适的宽度和高度
+			resultLabel.Move(fyne.NewPos(200, float32(30+90+10+rowIndex*(65)))) // 右侧位置调整
+
+			// 将结果标签添加到绝对定位容器中
+			positionContainer.Add(resultLabel)
 		}
 
-		var flopCards []string
-		for _, btn := range flopButtons {
-			if btn.Text != "?" {
-				flopCards = append(flopCards, btn.Text)
-			}
-		}
-
-		// 打印手牌和公共牌
-		fmt.Println("玩家手牌: ", playerHands)
-		fmt.Println("公共牌: ", flopCards)
-
-		// 这里可以将收集到的手牌和公共牌数据传入胜率计算逻辑
-		// 调用你自己实现的胜率计算函数
-		// calculateWinRate(playerHands, flopCards)
+		// 刷新容器以显示更新后的布局
+		positionContainer.Refresh()
 	})
 	// 设置按钮大小
 	executeButton.Resize(fyne.NewSize(80, 20))
