@@ -79,13 +79,30 @@ func main() {
 	// 预定义按钮的位置
 	flopPositions := []fyne.Position{
 		fyne.NewPos(0, 30),
-		fyne.NewPos(55, 30),
-		fyne.NewPos(110, 30),
-		fyne.NewPos(165, 30),
-		fyne.NewPos(220, 30),
+		fyne.NewPos(50, 30),
+		fyne.NewPos(100, 30),
+		fyne.NewPos(150, 30),
+		fyne.NewPos(200, 30),
 	}
 
 	var flopButtons []*widget.Button
+
+	// 创建清除公共牌按钮
+	clearFlopButton := widget.NewButton("清除公共牌", func() {
+		for _, btn := range flopButtons {
+			if oldCard := btn.Text; oldCard != "?" {
+				delete(selectedCards, oldCard) // 释放已选牌
+			}
+			btn.SetText("?") // 恢复默认状态
+		}
+	})
+
+	// 调整清除按钮位置和大小
+	clearFlopButton.Resize(fyne.NewSize(80, 20))
+	clearFlopButton.Move(fyne.NewPos(250, 60)) // 你可以调整这个位置
+
+	// 将清除按钮添加到绝对定位容器中
+	positionContainer.Add(clearFlopButton)
 
 	for _, pos := range flopPositions {
 		btn := widget.NewButton("?", nil) // 先创建按钮，不在这里直接绑定事件
@@ -130,7 +147,7 @@ func main() {
 			}
 		}(btn) // 这里传递 `btn`，确保作用域正确
 
-		btn.Resize(fyne.NewSize(50, 90))
+		btn.Resize(fyne.NewSize(45, 80))
 		btn.Move(pos)
 		flopButtons = append(flopButtons, btn)
 		positionContainer.Add(btn)
@@ -156,7 +173,7 @@ func main() {
 		rowButtons := []fyne.CanvasObject{}
 
 		for i := 0; i < 2; i++ {
-			newButton := widget.NewButton("", nil)
+			newButton := widget.NewButton("?", nil)
 			newX := float32(i * 55)
 			newY := float32(30 + 90 + 10 + newRowCount*(65))
 
@@ -175,7 +192,7 @@ func main() {
 						cardText := rank + suit
 						cardButton := widget.NewButton(cardText, func() {
 							// 如果按钮上已有牌，则先释放它
-							if oldCard := newButton.Text; oldCard != "" {
+							if oldCard := newButton.Text; oldCard != "?" {
 								delete(selectedCards, oldCard)
 							}
 
@@ -255,7 +272,7 @@ func main() {
 	})
 
 	// 设置按钮大小
-	addButton.Resize(fyne.NewSize(50, 30))
+	addButton.Resize(fyne.NewSize(40, 20))
 	// 设置按钮位置，放置在现有按钮下方
 	addButton.Move(fyne.NewPos(280, 30))
 
