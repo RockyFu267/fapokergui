@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -283,6 +284,30 @@ func main() {
 	executeButton := widget.NewButton("GO", func() {
 		// 在这里执行你的运算逻辑
 		println("执行运算按钮被点击！")
+		// 在这里收集所有手牌和公共牌数据
+		var playerHands []string
+		for _, row := range allRows {
+			for _, btn := range row {
+				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "?" {
+					playerHands = append(playerHands, textBtn.Text)
+				}
+			}
+		}
+
+		var flopCards []string
+		for _, btn := range flopButtons {
+			if btn.Text != "?" {
+				flopCards = append(flopCards, btn.Text)
+			}
+		}
+
+		// 打印手牌和公共牌
+		fmt.Println("玩家手牌: ", playerHands)
+		fmt.Println("公共牌: ", flopCards)
+
+		// 这里可以将收集到的手牌和公共牌数据传入胜率计算逻辑
+		// 调用你自己实现的胜率计算函数
+		// calculateWinRate(playerHands, flopCards)
 	})
 	// 设置按钮大小
 	executeButton.Resize(fyne.NewSize(80, 20))
