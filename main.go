@@ -119,7 +119,7 @@ func main() {
 
 				for _, rank := range pokerRanks {
 					for _, suit := range suits {
-						cardText := rank + suit
+						cardText := suit + rank
 						cardButton := widget.NewButton(cardText, func() {
 							// 如果按钮上已有牌，先释放它
 							if oldCard := b.Text; oldCard != "?" {
@@ -189,7 +189,7 @@ func main() {
 
 				for _, rank := range pokerRanks {
 					for _, suit := range suits {
-						cardText := rank + suit
+						cardText := suit + rank
 						cardButton := widget.NewButton(cardText, func() {
 							// 如果按钮上已有牌，则先释放它
 							if oldCard := newButton.Text; oldCard != "?" {
@@ -271,13 +271,25 @@ func main() {
 		positionContainer.Refresh()
 	})
 
+	// 将 "+add" 按钮添加到绝对定位容器中
+	positionContainer.Add(addButton)
+
 	// 设置按钮大小
 	addButton.Resize(fyne.NewSize(40, 20))
 	// 设置按钮位置，放置在现有按钮下方
 	addButton.Move(fyne.NewPos(280, 30))
 
-	// 将 "+add" 按钮添加到绝对定位容器中
-	positionContainer.Add(addButton)
+	// 创建执行运算按钮
+	executeButton := widget.NewButton("GO", func() {
+		// 在这里执行你的运算逻辑
+		println("执行运算按钮被点击！")
+	})
+	// 设置按钮大小
+	executeButton.Resize(fyne.NewSize(80, 20))
+	// 设置按钮位置，放置在现有按钮下方
+	executeButton.Move(fyne.NewPos(250, 90))
+	// 将执行运算按钮添加到绝对定位容器中
+	positionContainer.Add(executeButton)
 
 	// 使用 NewPadded 容器将绝对定位容器居中显示在窗口中
 	content := container.NewPadded(positionContainer)
