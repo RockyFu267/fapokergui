@@ -88,9 +88,48 @@ func main() {
 	var flopButtons []*widget.Button
 
 	for _, pos := range flopPositions {
-		btn := widget.NewButton("", func() {
-			println("长方形被点击了！")
-		})
+		btn := widget.NewButton("?", nil) // 先创建按钮，不在这里直接绑定事件
+
+		btn.OnTapped = func(b *widget.Button) func() {
+			return func() {
+				var popup *widget.PopUp
+
+				println("公共牌按钮被点击！")
+
+				cardButtons := []fyne.CanvasObject{}
+				pokerRanks := []string{"A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
+				suits := []string{"♠", "♥", "♣", "♦"}
+
+				for _, rank := range pokerRanks {
+					for _, suit := range suits {
+						cardText := rank + suit
+						cardButton := widget.NewButton(cardText, func() {
+							// 如果按钮上已有牌，先释放它
+							if oldCard := b.Text; oldCard != "?" {
+								delete(selectedCards, oldCard)
+							}
+
+							b.SetText(cardText)            // 更新按钮文本
+							selectedCards[cardText] = true // 标记该牌已被选中
+							popup.Hide()                   // 关闭弹窗
+						})
+
+						if selectedCards[cardText] {
+							cardButton.Disable() // 已选的牌变灰
+						}
+
+						cardButton.Importance = widget.HighImportance
+						cardButtons = append(cardButtons, cardButton)
+					}
+				}
+
+				// 创建 4 列网格布局
+				cardGrid := container.NewGridWithColumns(4, cardButtons...)
+				popup = widget.NewModalPopUp(cardGrid, w.Canvas())
+				popup.Show()
+			}
+		}(btn) // 这里传递 `btn`，确保作用域正确
+
 		btn.Resize(fyne.NewSize(50, 90))
 		btn.Move(pos)
 		flopButtons = append(flopButtons, btn)
