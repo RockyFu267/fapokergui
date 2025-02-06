@@ -306,6 +306,24 @@ func main() {
 				// 在这里处理按钮的点击事件
 				fmt.Println("手牌结果被点击："+handResult, flopCards)
 				resultButton.SetText(flopCards[0] + flopCards[1] + flopCards[2] + flopCards[3] + flopCards[4])
+				// 构建弹窗内容
+				resultText := fmt.Sprintf("手牌: %s\n公共牌: %v\n\n计算结果：这里显示计算后的胜率分析...", handResult, flopCards)
+				resultLabel := widget.NewLabel(resultText)
+
+				// 先声明 popup 变量
+				var popup *widget.PopUp
+
+				// 创建关闭按钮
+				closeButton := widget.NewButton("关闭", func() {
+					popup.Hide() // 关闭弹窗
+				})
+
+				// 将文本和按钮放入容器
+				popupContent := container.NewVBox(resultLabel, closeButton)
+
+				// 创建弹窗
+				popup = widget.NewModalPopUp(popupContent, w.Canvas())
+				popup.Show()
 			})
 
 			resultButton.Resize(fyne.NewSize(150, 30))                           // 设置合适的宽度和高度
