@@ -163,7 +163,7 @@ func main() {
 	var addButton *widget.Button // 先声明变量
 	// 创建 "+add" 按钮
 	addButton = widget.NewButton("+add", func() {
-		if newRowCount >= 10 {
+		if newRowCount >= 9 {
 			println("行数已达上限，直接返回")
 			addButton.Disable() // 禁用 "+add" 按钮
 			return              // 如果行数已达上限，直接返回
@@ -280,10 +280,18 @@ func main() {
 	// 设置按钮位置，放置在现有按钮下方
 	addButton.Move(fyne.NewPos(280, 30))
 
-	// 创建执行运算按钮
-	executeButton := widget.NewButton("GO", func() {
-		println("GO 按钮被点击了！")
-		// 遍历每一行的按钮
+	// 存储所有的 resultButton
+	var resultButtons []*widget.Button
+
+	// GO 按钮的回调函数
+	goButton := widget.NewButton("GO", func() {
+		// **清空旧的 resultButton**
+		for _, btn := range resultButtons {
+			positionContainer.Remove(btn) // UI 上移除
+		}
+		resultButtons = nil // 彻底清空
+
+		// **重新创建新的 resultButton**
 		for rowIndex, row := range allRows {
 			var flopCards []string
 			for _, btn := range flopButtons {
@@ -299,50 +307,44 @@ func main() {
 				}
 			}
 
-			// 创建并显示手牌结果作为按钮
-			// 每一行右侧偏移 100 的位置
-			var resultButton *widget.Button
-			resultButton = widget.NewButton(handResult, func() {
-				// 在这里处理按钮的点击事件
-				fmt.Println("手牌结果被点击："+handResult, flopCards)
-				resultButton.SetText(flopCards[0] + flopCards[1] + flopCards[2] + flopCards[3] + flopCards[4])
-				// 构建弹窗内容
-				resultText := fmt.Sprintf("手牌: %s\n公共牌: %v\n\n计算结果：这里显示计算后的胜率分析...", handResult, flopCards)
+			if len(row) == 0 {
+				continue
+			}
+
+			resultButton := widget.NewButton(handResult, func() {
+				fmt.Println("手牌结果被点击：" + handResult)
+
+				resultText := fmt.Sprintf("手牌: %s\n公共牌: %v\n\n计算结果：这里显示计算后的胜率分析...", handResult, "flopCards")
 				resultLabel := widget.NewLabel(resultText)
 
-				// 先声明 popup 变量
 				var popup *widget.PopUp
-
-				// 创建关闭按钮
 				closeButton := widget.NewButton("关闭", func() {
-					popup.Hide() // 关闭弹窗
+					popup.Hide()
 				})
 
-				// 将文本和按钮放入容器
 				popupContent := container.NewVBox(resultLabel, closeButton)
-
-				// 创建弹窗
 				popup = widget.NewModalPopUp(popupContent, w.Canvas())
 				popup.Show()
 			})
 
-			resultButton.Resize(fyne.NewSize(150, 30))                           // 设置合适的宽度和高度
-			resultButton.Move(fyne.NewPos(150, float32(30+90+10+rowIndex*(65)))) // 右侧位置调整
+			// **设置 resultButton 位置**
+			resultButton.Resize(fyne.NewSize(150, 30))
+			resultButton.Move(fyne.NewPos(150, float32(30+90+10+rowIndex*(65))))
 
-			// 将结果按钮添加到绝对定位容器中
+			// **添加到 UI**
 			positionContainer.Add(resultButton)
+			resultButtons = append(resultButtons, resultButton)
 		}
 
-		// 刷新容器以显示更新后的布局
-		positionContainer.Refresh()
+		positionContainer.Refresh() // 刷新 UI，更新按钮状态
 	})
 
 	// 设置按钮大小
-	executeButton.Resize(fyne.NewSize(80, 20))
+	goButton.Resize(fyne.NewSize(80, 20))
 	// 设置按钮位置，放置在现有按钮下方
-	executeButton.Move(fyne.NewPos(250, 90))
+	goButton.Move(fyne.NewPos(250, 90))
 	// 将执行运算按钮添加到绝对定位容器中
-	positionContainer.Add(executeButton)
+	positionContainer.Add(goButton)
 
 	// 使用 NewPadded 容器将绝对定位容器居中显示在窗口中
 	content := container.NewPadded(positionContainer)
