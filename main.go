@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -290,6 +291,19 @@ func main() {
 			positionContainer.Remove(btn) // UI 上移除
 		}
 		resultButtons = nil // 彻底清空
+		// 检查每一行的手牌是否符合要求
+		for _, row := range allRows {
+			var cardTexts []string
+			for _, btn := range row {
+				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "del" {
+					cardTexts = append(cardTexts, textBtn.Text)
+				}
+			}
+			if (cardTexts[0] == "?" && cardTexts[1] != "?") || (cardTexts[0] != "?" && cardTexts[1] == "?") {
+				dialog.ShowInformation("错误", "要求任意玩家的两张手牌必须指定或都不指定，不可以只指定一张", w)
+				return
+			}
+		}
 
 		// **重新创建新的 resultButton**
 		for rowIndex, row := range allRows {
@@ -314,17 +328,7 @@ func main() {
 			resultButton := widget.NewButton(handResult, func() {
 				fmt.Println("手牌结果被点击：" + handResult)
 
-				resultText := fmt.Sprintf("手牌: %s\n公共牌: %v\n\n计算结果：这里显示计算后的胜率分析...", handResult, "flopCards")
-				resultLabel := widget.NewLabel(resultText)
-
-				var popup *widget.PopUp
-				closeButton := widget.NewButton("关闭", func() {
-					popup.Hide()
-				})
-
-				popupContent := container.NewVBox(resultLabel, closeButton)
-				popup = widget.NewModalPopUp(popupContent, w.Canvas())
-				popup.Show()
+				dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handResult, w)
 			})
 
 			// **设置 resultButton 位置**
