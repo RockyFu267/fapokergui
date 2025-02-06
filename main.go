@@ -291,7 +291,7 @@ func main() {
 			positionContainer.Remove(btn) // UI 上移除
 		}
 		resultButtons = nil // 彻底清空
-		// 检查每一行的手牌是否符合要求
+		// 检查每一行的手牌是否符合要求-
 		for _, row := range allRows {
 			var cardTexts []string
 			for _, btn := range row {
