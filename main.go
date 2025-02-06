@@ -295,15 +295,17 @@ func main() {
 			var handResult string
 			for _, btn := range row {
 				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "del" {
-					handResult += textBtn.Text + " " + flopCards[0] + flopCards[1] + flopCards[2] + flopCards[3] + flopCards[4] // 将这一行的手牌连接起来
+					handResult += textBtn.Text + " " // 将这一行的手牌连接起来
 				}
 			}
 
 			// 创建并显示手牌结果作为按钮
 			// 每一行右侧偏移 100 的位置
-			resultButton := widget.NewButton(handResult, func() {
+			var resultButton *widget.Button
+			resultButton = widget.NewButton(handResult, func() {
 				// 在这里处理按钮的点击事件
 				fmt.Println("手牌结果被点击："+handResult, flopCards)
+				resultButton.SetText(flopCards[0] + flopCards[1] + flopCards[2] + flopCards[3] + flopCards[4])
 			})
 
 			resultButton.Resize(fyne.NewSize(150, 30))                           // 设置合适的宽度和高度
