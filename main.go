@@ -81,16 +81,16 @@ func main() {
 	// 预定义按钮的位置
 	flopPositions := []fyne.Position{
 		fyne.NewPos(0, 30),
-		fyne.NewPos(50, 30),
-		fyne.NewPos(100, 30),
-		fyne.NewPos(150, 30),
-		fyne.NewPos(200, 30),
+		fyne.NewPos(40, 30),
+		fyne.NewPos(80, 30),
+		fyne.NewPos(120, 30),
+		fyne.NewPos(160, 30),
 	}
 
 	var flopButtons []*widget.Button
 
 	// 创建清除公共牌按钮
-	clearFlopButton := widget.NewButton("清除公共牌", func() {
+	clearFlopButton := widget.NewButton("ClearPubCard", func() {
 		for _, btn := range flopButtons {
 			if oldCard := btn.Text; oldCard != "?" {
 				delete(selectedCards, oldCard) // 释放已选牌
@@ -100,8 +100,8 @@ func main() {
 	})
 
 	// 调整清除按钮位置和大小
-	clearFlopButton.Resize(fyne.NewSize(80, 20))
-	clearFlopButton.Move(fyne.NewPos(250, 60)) // 你可以调整这个位置
+	clearFlopButton.Resize(fyne.NewSize(100, 20))
+	clearFlopButton.Move(fyne.NewPos(0, 90)) // 你可以调整这个位置
 
 	// 将清除按钮添加到绝对定位容器中
 	positionContainer.Add(clearFlopButton)
@@ -149,7 +149,7 @@ func main() {
 			}
 		}(btn) // 这里传递 `btn`，确保作用域正确
 
-		btn.Resize(fyne.NewSize(45, 80))
+		btn.Resize(fyne.NewSize(30, 50))
 		btn.Move(pos)
 		flopButtons = append(flopButtons, btn)
 		positionContainer.Add(btn)
@@ -163,7 +163,7 @@ func main() {
 
 	var addButton *widget.Button // 先声明变量
 	// 创建 "+add" 按钮
-	addButton = widget.NewButton("+add", func() {
+	addButton = widget.NewButton("Add\nPlayer", func() {
 		if newRowCount >= 9 {
 			println("行数已达上限，直接返回")
 			addButton.Disable() // 禁用 "+add" 按钮
@@ -277,9 +277,9 @@ func main() {
 	positionContainer.Add(addButton)
 
 	// 设置按钮大小
-	addButton.Resize(fyne.NewSize(40, 20))
+	addButton.Resize(fyne.NewSize(50, 50))
 	// 设置按钮位置，放置在现有按钮下方
-	addButton.Move(fyne.NewPos(280, 30))
+	addButton.Move(fyne.NewPos(200, 30))
 
 	// 存储所有的 resultButton
 	var resultButtons []*widget.Button
@@ -344,9 +344,9 @@ func main() {
 	})
 
 	// 设置按钮大小
-	goButton.Resize(fyne.NewSize(80, 20))
+	goButton.Resize(fyne.NewSize(50, 50))
 	// 设置按钮位置，放置在现有按钮下方
-	goButton.Move(fyne.NewPos(250, 90))
+	goButton.Move(fyne.NewPos(270, 30))
 	// 将执行运算按钮添加到绝对定位容器中
 	positionContainer.Add(goButton)
 
