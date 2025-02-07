@@ -1,0 +1,22 @@
+#指定玩家数量 大于1小于11
+playernumber: 9
+##指定玩家手牌  不需要指定的玩家手牌可以删掉，suit花色的值为 "红桃"、"黑桃"、"方片"、"梅花"，suit的配置要加上英文引号
+##rank为牌的点数，14 对应A,13 对应K,12 对应Q,11 为J 下面这段配置需要生效就取消注释
+
+handcardlist: 
+  - handcard: 
+    - suit: "红桃"
+      rank: 2
+    - suit: "黑桃"
+      rank: 2
+  - handcard: 
+    - suit: "方片"
+      rank: 14
+    - suit: "梅花"
+      rank: 14
+
+#指定执行次数   大于等于 1,小于等于 100000
+roundnumber: 10000
+#默认不开启debug模式   开启debug模式会打印出每局的的详细信息 局数较少才推荐开启，false为关闭，true为开启
+debugswitch: false
+
