@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"strconv"
+
+	LBF "fapokergui/localBaseFunc"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -286,6 +289,7 @@ func main() {
 
 	// GO 按钮的回调函数
 	goButton := widget.NewButton("GO", func() {
+		var handConfig LBF.HandConfig // 创建一个空的 HandConfig
 		// **清空旧的 resultButton**
 		for _, btn := range resultButtons {
 			positionContainer.Remove(btn) // UI 上移除
@@ -305,30 +309,60 @@ func main() {
 			}
 		}
 
+		for _, btn := range flopButtons { // 获取公共牌 录入   handConfig
+			// if btn.Text != "?" {
+			// fmt.Println(i)    //debug
+			cardTrans, _ := LBF.ConvertInputToCard(btn.Text)
+			// fmt.Println(cardTrans.Rank, cardTrans.Suit)  //debug
+			if cardTrans.Suit != "?" {
+				handConfig.PublicCard = append(handConfig.PublicCard, cardTrans)
+			}
+			// fmt.Println(handConfig) //debug
+			// }
+		}
 		// **重新创建新的 resultButton**
 		for rowIndex, row := range allRows {
-			var flopCards []string
-			for _, btn := range flopButtons {
-				// if btn.Text != "?" {
-				flopCards = append(flopCards, btn.Text)
-				// }
-			}
+			var player LBF.Players
+			player.ID = fmt.Sprintf("%d", rowIndex+1)
 			// 收集这一行的手牌
 			var handResult string
 			for _, btn := range row {
 				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "del" {
 					handResult += textBtn.Text + " " // 将这一行的手牌连接起来
+					cardTrans, _ := LBF.ConvertInputToCard(textBtn.Text)
+					player.Hand = append(player.Hand, cardTrans)
 				}
 			}
-
+			handConfig.PlayerList = append(handConfig.PlayerList, player)
 			if len(row) == 0 {
 				continue
 			}
 
-			resultButton := widget.NewButton(handResult, func() {
-				fmt.Println("手牌结果被点击：" + handResult)
+			// resultButton := widget.NewButton(handResult, func() {
+			// 	fmt.Println("手牌结果被点击：" + handResult)
 
-				dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handResult, w)
+			// 	dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handResult, w)
+			// })
+
+			// // **设置 resultButton 位置**
+			// resultButton.Resize(fyne.NewSize(150, 30))
+			// resultButton.Move(fyne.NewPos(150, float32(30+90+10+rowIndex*(65))))
+
+			// // **添加到 UI**
+			// positionContainer.Add(resultButton)
+			// resultButtons = append(resultButtons, resultButton)
+		}
+		fmt.Println(handConfig) //debug
+		// **刷新结果 resultButton**
+		for rowIndex, row := range allRows {
+			if len(row) == 0 {
+				continue
+			}
+
+			resultButton := widget.NewButton(handConfig.PlayerList[rowIndex].Hand[0].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[0].Rank)+" "+handConfig.PlayerList[rowIndex].Hand[1].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[1].Rank), func() {
+				fmt.Println("手牌结果被点击")
+
+				dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handConfig.PlayerList[rowIndex].ID, w)
 			})
 
 			// **设置 resultButton 位置**
