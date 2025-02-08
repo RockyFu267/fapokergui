@@ -17,6 +17,7 @@ type HandConfig struct {
 	HandCardList []HandCard `json:"handcardlist,omitempty"`
 	RoundNumber  int        `json:"roundnumber,omitempty"`
 	DebugSwitch  bool       `json:"debugswitch,omitempty"`
+	PublicCard   []Card     `json:"publiccard,omitempty"`
 }
 
 // Players 玩家

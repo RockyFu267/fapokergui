@@ -8,6 +8,136 @@ import (
 )
 
 // 指定人数 洗牌，发牌，并比较谁的牌最大,并且可以选择指定手牌
+func shuffleJudgeGUI01(playlist []Players, appointHandCardList []HandCard, DebugSwitch bool) (winner []Players, handlist map[string]int) {
+	playerNum := len(playlist)
+	var Card52 []Card
+	var resHandList []HandCard
+	var pubHandList []Card
+
+	//添加返回
+	ALLHandMap := make(map[string]int)
+	if appointHandCardList != nil { //填写指定发牌的逻辑
+		var tempAppointHand []Card
+		var handTempList []HandCard
+		var handTemp HandCard
+		for i := 0; i < len(appointHandCardList); i++ {
+			tempAppointHand = append(tempAppointHand, appointHandCardList[i].HandCard[0])
+			tempAppointHand = append(tempAppointHand, appointHandCardList[i].HandCard[1])
+			handTemp = HandCard{
+				HandCard: [2]Card{appointHandCardList[i].HandCard[0], appointHandCardList[i].HandCard[1]},
+			}
+			handTempList = append(handTempList, handTemp)
+		}
+		// fmt.Println("指定牌的长度: ", len(tempAppointHand)) //debug
+		Card52 := shortOfShuffleCard(tempAppointHand)
+		resHandListTemp, pubHandListTemp := DealCards(Card52, playerNum-len(handTempList))
+		resHandList = append(handTempList, resHandListTemp...)
+		pubHandList = pubHandListTemp
+		if DebugSwitch {
+			for k, v := range resHandList {
+				fmt.Println("玩家ID：", playlist[k].ID, "手牌：", v.HandCard[0].CardTranslate(), v.HandCard[1].CardTranslate(), "---debug---handcard")
+			}
+			fmt.Println("公共手牌：", pubHandList[0].CardTranslate(), pubHandList[1].CardTranslate(), pubHandList[2].CardTranslate(), pubHandList[3].CardTranslate(), pubHandList[4].CardTranslate(), "---debug---pubhandcard")
+		}
+	} else {
+		Card52 = ShuffleCard() //洗牌
+		resHandList, pubHandList = DealCards(Card52, playerNum)
+		if DebugSwitch {
+			for k, v := range resHandList {
+				fmt.Println("玩家ID：", playlist[k].ID, "手牌：", v.HandCard[0].CardTranslate(), v.HandCard[1].CardTranslate(), "---debug---handcard")
+			}
+			fmt.Println("公共手牌：", pubHandList[0].CardTranslate(), pubHandList[1].CardTranslate(), pubHandList[2].CardTranslate(), pubHandList[3].CardTranslate(), pubHandList[4].CardTranslate(), "---debug---pubhandcard")
+		}
+
+	}
+	for i := 0; i < len(resHandList); i++ {
+		if resHandList[i].HandCard[0].Suit == resHandList[i].HandCard[1].Suit {
+			ALLHandMap[resHandList[i].HandCard[0].CardRankTranslate()+resHandList[i].HandCard[1].CardRankTranslate()+"s"]++
+			continue
+		}
+		if resHandList[i].HandCard[0].Suit != resHandList[i].HandCard[1].Suit && resHandList[i].HandCard[0].Rank != resHandList[i].HandCard[1].Rank {
+			ALLHandMap[resHandList[i].HandCard[0].CardRankTranslate()+resHandList[i].HandCard[1].CardRankTranslate()+"o"]++
+			continue
+		}
+		if resHandList[i].HandCard[0].Rank == resHandList[i].HandCard[1].Rank {
+			ALLHandMap[resHandList[i].HandCard[0].CardRankTranslate()+resHandList[i].HandCard[1].CardRankTranslate()]++
+			continue
+		}
+	}
+	// fmt.Println("手牌组：", len(resHandList), resHandList)        //debug
+	// fmt.Println("公共手牌长度以及手牌 ", len(pubHandList), pubHandList) //debug
+
+	maxGrade := 0
+	maxCard5 := [5]int{0, 0, 0, 0, 0}
+	// 假装这里已经处理了座次
+	for i := 0; i < len(resHandList); i++ {
+		var tempCard7 [7]Card
+		playlist[i].Hand = resHandList[i]
+		tempCard7[0] = playlist[i].Hand.HandCard[0]
+		tempCard7[1] = playlist[i].Hand.HandCard[1]
+		tempCard7[2] = pubHandList[0]
+		tempCard7[3] = pubHandList[1]
+		tempCard7[4] = pubHandList[2]
+		tempCard7[5] = pubHandList[3]
+		tempCard7[6] = pubHandList[4]
+		tempCard7 = sortCards(tempCard7)
+		playlist[i].Card7 = tempCard7
+		playlist[i].Grade, playlist[i].Card5 = Judge5From7(playlist[i].Card7)
+		// fmt.Println(playlist[i].ID, playlist[i].Hand)              //debug
+		// fmt.Println(playlist[i].Grade, "-max-", playlist[i].Card5) //debug
+		if maxGrade == playlist[i].Grade {
+			for j := 0; j < 5; j++ {
+				if playlist[i].Card5[j].Rank > maxCard5[j] {
+					maxCard5[0] = playlist[i].Card5[0].Rank
+					maxCard5[1] = playlist[i].Card5[1].Rank
+					maxCard5[2] = playlist[i].Card5[2].Rank
+					maxCard5[3] = playlist[i].Card5[3].Rank
+					maxCard5[4] = playlist[i].Card5[4].Rank
+					break
+				}
+				if playlist[i].Card5[j].Rank == maxCard5[j] {
+					continue
+				}
+				if playlist[i].Card5[j].Rank < maxCard5[j] {
+					break
+				}
+			}
+			continue
+		}
+		if maxGrade < playlist[i].Grade {
+			maxGrade = playlist[i].Grade
+			for j := 0; j < 5; j++ {
+				maxCard5[j] = playlist[i].Card5[j].Rank
+			}
+			continue
+		}
+	}
+	// fmt.Println("len ", len(winner))   //debug
+	// fmt.Println("maxGrade ", maxGrade) //debug
+	// fmt.Println("maxCard5 ", maxCard5) //debug
+
+	for i := 0; i < len(playlist); i++ {
+		if playlist[i].Grade == maxGrade {
+			// fmt.Println("最大的ID ", playlist[i].ID) //debug
+			sign := true
+			for j := 0; j < 5; j++ {
+				if playlist[i].Card5[j].Rank == maxCard5[j] {
+					continue
+				} else {
+					sign = false
+				}
+			}
+			if sign {
+				winner = append(winner, playlist[i])
+			}
+		}
+	}
+	// fmt.Println("len2 ", len(winner)) //debug
+
+	return winner, ALLHandMap
+}
+
+// 指定人数 洗牌，发牌，并比较谁的牌最大,并且可以选择指定手牌
 func shuffleJudgeDemo01(playlist []Players, appointHandCardList []HandCard, DebugSwitch bool) (winner []Players, handlist map[string]int) {
 	playerNum := len(playlist)
 	var Card52 []Card
