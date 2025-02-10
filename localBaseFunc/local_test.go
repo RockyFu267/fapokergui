@@ -85,3 +85,68 @@ func TestConvertInputToCard_ValidInput_ReturnsCard(t *testing.T) {
 		}
 	}
 }
+
+func Test_DealCards(t *testing.T) {
+
+	res := ShuffleCard()
+	// fmt.Println(res)
+	for _, i := range res {
+		cardView := i.CardTranslate()
+		fmt.Print(cardView, " ")
+	}
+
+	res01, res02 := DealCards(res, 10)
+	fmt.Println(len(res01))
+	for k, v := range res01 {
+		fmt.Println(k, v.HandCard[0].CardTranslate(), v.HandCard[1].CardTranslate())
+	}
+	fmt.Println("--------")
+	for _, v := range res02 {
+		fmt.Print(v.CardTranslate(), " ")
+	}
+
+	fmt.Println("xxxxxxxxxxxxxxxxxxx")
+
+	inputTest := []Card{
+		{Rank: 4, Suit: "方片"},
+		{Rank: 4, Suit: "梅花"},
+		{Rank: 4, Suit: "黑桃"},
+		{Rank: 8, Suit: "方片"},
+		{Rank: 7, Suit: "梅花"},
+		{Rank: 4, Suit: "红桃"},
+		{Rank: 9, Suit: "方片"},
+	}
+	resA := ShortOfShuffleCard(inputTest)
+	for _, i := range resA {
+		cardView := i.CardTranslate()
+		fmt.Print(cardView, " ")
+	}
+
+	resA01, resA02 := DealCards(resA, 5)
+	fmt.Println(len(resA01))
+	for k, v := range resA01 {
+		fmt.Println(k, v.HandCard[0].CardTranslate(), v.HandCard[1].CardTranslate())
+	}
+	fmt.Println(len(resA), len(resA01), len(resA02))
+	fmt.Println("xxxxxxxxxxxxxxxxxxx")
+	for _, v := range resA02 {
+		fmt.Print(v.CardTranslate(), " ")
+	}
+}
+
+func TestShortLocalDealCards_EmptyHands_NewHandsAssigned(t *testing.T) {
+	// 准备
+	pubCard := []Card{{Suit: "红桃", Rank: 2}, {Suit: "黑桃", Rank: 3}}
+	playerList := []Players{
+		{Hand: HandCard{HandCard: []Card{{Suit: "红桃", Rank: 14}, {Suit: "黑桃", Rank: 14}}}},
+		{Hand: HandCard{HandCard: []Card{{Rank: 0}, {Rank: 0}}}},
+	}
+
+	// 执行
+	playerList, pubCard = ShortLocalDealCards(pubCard, playerList)
+
+	fmt.Println(playerList)
+	for k, v := range pubCard {
+		fmt.Println(k, v.CardTranslate())
+	}
+}

@@ -3,7 +3,11 @@ module fapokergui
 go 1.23.3
 
 require (
-	fyne.io/fyne/v2 v2.5.4 // indirect
+	fyne.io/fyne/v2 v2.5.4
+	gopkg.in/yaml.v2 v2.4.0
+)
+
+require (
 	fyne.io/systray v1.11.0 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -33,6 +37,5 @@ require (
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"strconv"
 
 	LBF "fapokergui/localBaseFunc"
 
@@ -330,7 +329,7 @@ func main() {
 				if textBtn, ok := btn.(*widget.Button); ok && textBtn.Text != "del" {
 					handResult += textBtn.Text + " " // 将这一行的手牌连接起来
 					cardTrans, _ := LBF.ConvertInputToCard(textBtn.Text)
-					player.Hand = append(player.Hand, cardTrans)
+					player.Hand.HandCard = append(player.Hand.HandCard, cardTrans)
 				}
 			}
 			handConfig.PlayerList = append(handConfig.PlayerList, player)
@@ -359,7 +358,9 @@ func main() {
 				continue
 			}
 
-			resultButton := widget.NewButton(handConfig.PlayerList[rowIndex].Hand[0].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[0].Rank)+" "+handConfig.PlayerList[rowIndex].Hand[1].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[1].Rank), func() {
+			//	resultButton := widget.NewButton(handConfig.PlayerList[rowIndex].Hand[0].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[0].Rank)+" "+handConfig.PlayerList[rowIndex].Hand[1].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[1].Rank), func() {
+			resultButton := widget.NewButton((handConfig.PlayerList[rowIndex].Hand.HandCard[0].CardTranslate() + handConfig.PlayerList[rowIndex].Hand.HandCard[1].CardTranslate()), func() {
+
 				fmt.Println("手牌结果被点击")
 
 				dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handConfig.PlayerList[rowIndex].ID, w)
