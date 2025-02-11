@@ -136,10 +136,15 @@ func Test_DealCards(t *testing.T) {
 
 func TestShortLocalDealCards_EmptyHands_NewHandsAssigned(t *testing.T) {
 	// 准备
-	pubCard := []Card{{Suit: "红桃", Rank: 2}, {Suit: "黑桃", Rank: 3}}
+	// pubCard := []Card{{Suit: "红桃", Rank: 2}, {Suit: "黑桃", Rank: 3}}
+	// playerList := []Players{
+	// 	{Hand: HandCard{HandCard: []Card{{Suit: "红桃", Rank: 14}, {Suit: "黑桃", Rank: 14}}}},
+	// 	{Hand: HandCard{HandCard: []Card{{Rank: 0}, {Rank: 0}}}},
+	// }
+	pubCard := []Card{{Suit: "？", Rank: 0}, {Suit: "?", Rank: 0}}
 	playerList := []Players{
-		{Hand: HandCard{HandCard: []Card{{Suit: "红桃", Rank: 14}, {Suit: "黑桃", Rank: 14}}}},
-		{Hand: HandCard{HandCard: []Card{{Rank: 0}, {Rank: 0}}}},
+		{Hand: HandCard{HandCard: []Card{{Suit: "?", Rank: 0}, {Suit: "?", Rank: 0}}}},
+		{Hand: HandCard{HandCard: []Card{{Suit: "?", Rank: 0}, {Suit: "?", Rank: 0}}}},
 	}
 
 	// 执行
@@ -149,4 +154,124 @@ func TestShortLocalDealCards_EmptyHands_NewHandsAssigned(t *testing.T) {
 	for k, v := range pubCard {
 		fmt.Println(k, v.CardTranslate())
 	}
+}
+
+func TestSortCards7(t *testing.T) {
+	tests := []struct {
+		cards    [7]Card
+		expected [7]Card
+	}{
+		{
+			cards: [7]Card{
+				{Rank: 2, Suit: "梅花"},
+				{Rank: 3, Suit: "红桃"},
+				{Rank: 4, Suit: "方片"},
+				{Rank: 5, Suit: "黑桃"},
+				{Rank: 6, Suit: "梅花"},
+				{Rank: 7, Suit: "红桃"},
+				{Rank: 8, Suit: "方片"},
+			},
+			expected: [7]Card{
+				{Rank: 8, Suit: "方片"},
+				{Rank: 7, Suit: "红桃"},
+				{Rank: 6, Suit: "梅花"},
+				{Rank: 5, Suit: "黑桃"},
+				{Rank: 4, Suit: "方片"},
+				{Rank: 3, Suit: "红桃"},
+				{Rank: 2, Suit: "梅花"},
+			},
+		},
+		{
+			cards: [7]Card{
+				{Rank: 5, Suit: "梅花"},
+				{Rank: 5, Suit: "红桃"},
+				{Rank: 5, Suit: "方片"},
+				{Rank: 5, Suit: "黑桃"},
+				{Rank: 5, Suit: "梅花"},
+				{Rank: 5, Suit: "红桃"},
+				{Rank: 5, Suit: "方片"},
+			},
+			expected: [7]Card{
+				{Rank: 5, Suit: "黑桃"},
+				{Rank: 5, Suit: "红桃"},
+				{Rank: 5, Suit: "红桃"},
+				{Rank: 5, Suit: "方片"},
+				{Rank: 5, Suit: "方片"},
+				{Rank: 5, Suit: "梅花"},
+				{Rank: 5, Suit: "梅花"},
+			},
+		},
+		{
+			cards: [7]Card{
+				{Rank: 10, Suit: "梅花"},
+				{Rank: 10, Suit: "红桃"},
+				{Rank: 10, Suit: "方片"},
+				{Rank: 10, Suit: "黑桃"},
+				{Rank: 10, Suit: "梅花"},
+				{Rank: 10, Suit: "红桃"},
+				{Rank: 10, Suit: "方片"},
+			},
+			expected: [7]Card{
+				{Rank: 10, Suit: "黑桃"},
+				{Rank: 10, Suit: "红桃"},
+				{Rank: 10, Suit: "红桃"},
+				{Rank: 10, Suit: "方片"},
+				{Rank: 10, Suit: "方片"},
+				{Rank: 10, Suit: "梅花"},
+				{Rank: 10, Suit: "梅花"},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		result := sortCards7(test.cards)
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Errorf("sortCards7(%v) = %v, want %v", test.cards, result, test.expected)
+		}
+	}
+}
+func TestShuffleJudgeGUI01(t *testing.T) {
+
+	// 测试用例1：不同的牌型
+	players := []Players{
+		{ID: "AAA", Hand: HandCard{HandCard: []Card{{Rank: 2, Suit: "红桃"}, {Rank: 3, Suit: "红桃"}}}},
+		{ID: "BBB", Hand: HandCard{HandCard: []Card{{Rank: 4, Suit: "红桃"}, {Rank: 5, Suit: "红桃"}}}},
+	}
+	publicCards := []Card{
+		{Rank: 6, Suit: "红桃"},
+		{Rank: 7, Suit: "红桃"},
+		{Rank: 8, Suit: "红桃"},
+		{Rank: 9, Suit: "红桃"},
+		{Rank: 10, Suit: "红桃"},
+	}
+	winner := shuffleJudgeGUI01(players, publicCards, true)
+	for i, p := range winner {
+		fmt.Println("winner:", i)
+		fmt.Println(p.ID, p.Hand.HandCard[0].CardTranslate(), p.Hand.HandCard[1].CardTranslate())
+		fmt.Println(p.Grade, p.Card5)
+	}
+
+	// 测试用例2：相同的最高牌型，不同的五张牌
+	players = []Players{
+		{ID: "AAA", Hand: HandCard{HandCard: []Card{{Rank: 10, Suit: "黑桃"}, {Rank: 9, Suit: "黑桃"}}}},
+		{ID: "BBB", Hand: HandCard{HandCard: []Card{{Rank: 11, Suit: "红桃"}, {Rank: 8, Suit: "黑桃"}}}},
+	}
+	winner = shuffleJudgeGUI01(players, publicCards, false)
+	for i, p := range winner {
+		fmt.Println("winner:", i)
+		fmt.Println(p.ID, p.Hand.HandCard[0].CardTranslate(), p.Hand.HandCard[1].CardTranslate())
+		fmt.Println(p.Grade, p.Card5)
+	}
+	// 测试用例3：相同的最高牌型和五张牌
+	players = []Players{
+		{ID: "AAA", Hand: HandCard{HandCard: []Card{{Rank: 10, Suit: "黑桃"}, {Rank: 9, Suit: "黑桃"}}}},
+		{ID: "BBB", Hand: HandCard{HandCard: []Card{{Rank: 12, Suit: "黑桃"}, {Rank: 13, Suit: "黑桃"}}}},
+	}
+	winner = shuffleJudgeGUI01(players, publicCards, false)
+	for i, p := range winner {
+		fmt.Println("winner:", i)
+		fmt.Println(p.ID, p.Hand.HandCard[0].CardTranslate(), p.Hand.HandCard[1].CardTranslate())
+		fmt.Println(p.Grade, p.Card5)
+	}
+
 }
