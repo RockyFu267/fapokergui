@@ -150,20 +150,20 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 		return mostWinPlayerSlice[i].Value > mostWinPlayerSlice[j].Value
 	})
 	// 输出结果
-	fmt.Println("玩家ID和对应ID:") //debug
+	// fmt.Println("玩家ID和对应ID:") //debug
 	for k, v := range input.PlayerList {
 		fmt.Println(k, v.ID)
 	}
 	// fmt.Println(mostWinPlayer) //debug
-	fmt.Println(mostWinHand)   //debug
-	fmt.Println("玩家胜利次数排序如下：") //debug
-	for i := 0; i < len(mostWinPlayerSlice); i++ {
-		fmt.Println(mostWinPlayerSlice[i].Key, mostWinPlayerSlice[i].Value)
-	}
+	// fmt.Println(mostWinHand)   //debug
+	// fmt.Println("玩家胜利次数排序如下：") //debug
+	// for i := 0; i < len(mostWinPlayerSlice); i++ {
+	// 	fmt.Println(mostWinPlayerSlice[i].Key, mostWinPlayerSlice[i].Value)
+	// }
 
-	fmt.Println("平局次数：", tieCount)
+	// fmt.Println("平局次数：", tieCount)
 	WebRes.DrawCount = tieCount
-	fmt.Println("成牌牌力分布统计：", winGradeList)
+	// fmt.Println("成牌牌力分布统计：", winGradeList)
 	for i := 0; i < len(winGradeListSlice); i++ {
 		var tempWinGradeList WinGradeList
 		tempWinGradeList.GradeName = winGradeListSlice[i].Key

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"strconv"
 
 	LBF "fapokergui/localBaseFunc"
 
@@ -351,9 +352,16 @@ func main() {
 			// positionContainer.Add(resultButton)
 			// resultButtons = append(resultButtons, resultButton)
 		}
+		handConfig.RoundNumber = 10000
+		handConfig.DebugSwitch = false
 		fmt.Println(handConfig) //debug
 		//从这开始调方法
-		guiRes, _ := LBF.HandWinRateSimulationWeb01(handConfig)
+		guiRes, err := LBF.HandWinRateSimulationWeb01(handConfig)
+		if err != nil {
+			fmt.Println("Error:", err)
+			dialog.ShowInformation("错误,执行错误", err.Error(), w)
+			return
+		}
 		fmt.Println(guiRes) //debug
 
 		// **刷新结果 resultButton**
@@ -361,9 +369,7 @@ func main() {
 			if len(row) == 0 {
 				continue
 			}
-
-			//	resultButton := widget.NewButton(handConfig.PlayerList[rowIndex].Hand[0].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[0].Rank)+" "+handConfig.PlayerList[rowIndex].Hand[1].Suit+strconv.Itoa(handConfig.PlayerList[rowIndex].Hand[1].Rank), func() {
-			resultButton := widget.NewButton((handConfig.PlayerList[rowIndex].Hand.HandCard[0].CardTranslate() + handConfig.PlayerList[rowIndex].Hand.HandCard[1].CardTranslate()), func() {
+			resultButton := widget.NewButton((strconv.FormatFloat(guiRes.PlayersRes[rowIndex].WinRate*100, 'f', 3, 64) + "%"), func() {
 
 				fmt.Println("手牌结果被点击")
 
@@ -386,8 +392,18 @@ func main() {
 	goButton.Resize(fyne.NewSize(50, 50))
 	// 设置按钮位置，放置在现有按钮下方
 	goButton.Move(fyne.NewPos(270, 30))
+
 	// 将执行运算按钮添加到绝对定位容器中
 	positionContainer.Add(goButton)
+
+	//添加help按钮
+	var helpButton *widget.Button
+	helpButton = widget.NewButton("Help", func() {
+		dialog.ShowInformation("bug反馈、需求或建议", "Email：rocky267.foxmail.com\n"+"wechat：RoCkySImBa\n", w)
+	})
+	helpButton.Resize(fyne.NewSize(40, 20))
+	helpButton.Move(fyne.NewPos(0, 0))
+	positionContainer.Add(helpButton)
 
 	// 使用 NewPadded 容器将绝对定位容器居中显示在窗口中
 	content := container.NewPadded(positionContainer)
