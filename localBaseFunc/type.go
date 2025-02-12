@@ -30,6 +30,7 @@ type HandConfig struct {
 // Players 玩家
 type Players struct {
 	ID                  string              `json:"id"`
+	DisPlayName         string              `json:"displayname"`
 	Hand                HandCard            `json:"hand"`
 	ChipSum             int64               `json:"chipsum,omitempty"`
 	ChipBackHand        int64               `json:"chipbackhand,omitempty"`

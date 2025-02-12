@@ -50,9 +50,9 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 			randomIndex := rng.Intn(len(entertainmentIDs)) // 使用本地生成器生成随机索引
 			randomID := entertainmentIDs[randomIndex]      // 选择对应的ID
 			if !usedIDs[randomID] {                        // 检查是否已经被使用
-				input.PlayerList[i].ID = input.PlayerList[i].ID + "-" + randomID // 分配给玩家
-				usedIDs[randomID] = true                                         // 标记为已使用
-				break                                                            // 跳出循环，分配下一个玩家
+				input.PlayerList[i].DisPlayName = input.PlayerList[i].ID + "-" + randomID // 分配给玩家
+				usedIDs[randomID] = true                                                  // 标记为已使用
+				break                                                                     // 跳出循环，分配下一个玩家
 			}
 		}
 	}
