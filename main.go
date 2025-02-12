@@ -352,6 +352,10 @@ func main() {
 			// resultButtons = append(resultButtons, resultButton)
 		}
 		fmt.Println(handConfig) //debug
+		//从这开始调方法
+		guiRes, _ := LBF.HandWinRateSimulationWeb01(handConfig)
+		fmt.Println(guiRes) //debug
+
 		// **刷新结果 resultButton**
 		for rowIndex, row := range allRows {
 			if len(row) == 0 {

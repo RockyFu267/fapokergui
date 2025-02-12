@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"strconv"
 	"time"
 )
 
@@ -67,25 +66,10 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 	var mostWinPlayerSlice []winnerKV
 	//统计获得胜利做的手牌
 	mostWinHand := make(map[string]int)
-	type hadnKV struct {
-		Key   string
-		Value int
-	}
-	//统计真实胜率
-	allWinRealRate := make(map[string]int)
-	type realWinRateKV struct {
-		Key   string
-		Value float64
-	}
 
-	var mostWinrHandSlice []hadnKV
-	var allHandRateSlice []realWinRateKV
 	var winGradeListSlice []winnerKV
 	//统计平局的次数
 	var tieCount int
-
-	//所有被发出来的手牌统计
-	allHandListOrigin := make(map[string]int)
 
 	// 模拟牌局
 	for i := 0; i < input.RoundNumber; i++ {
@@ -119,8 +103,6 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 		}
 
 		for _, v := range winners {
-			// fmt.Println("--AAA---" + strconv.Itoa(i+1) + "---AAA---")
-			// fmt.Println(k, v) //debug
 			//统计获得胜利最多的玩家
 			mostWinPlayer[v.ID]++
 			//统计获得胜利做的手牌
@@ -147,18 +129,6 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 			case 8:
 				winGradeList["同花顺"]++
 			}
-			if v.Hand.HandCard[0].Suit == v.Hand.HandCard[1].Suit {
-				allWinRealRate[v.Hand.HandCard[0].CardRankTranslate()+v.Hand.HandCard[1].CardRankTranslate()+"s"]++
-				continue
-			}
-			if v.Hand.HandCard[0].Suit != v.Hand.HandCard[1].Suit && v.Hand.HandCard[0].Rank != v.Hand.HandCard[1].Rank {
-				allWinRealRate[v.Hand.HandCard[0].CardRankTranslate()+v.Hand.HandCard[1].CardRankTranslate()+"o"]++
-				continue
-			}
-			if v.Hand.HandCard[0].Rank == v.Hand.HandCard[1].Rank {
-				allWinRealRate[v.Hand.HandCard[0].CardRankTranslate()+v.Hand.HandCard[1].CardRankTranslate()]++
-				continue
-			}
 		}
 	}
 
@@ -171,13 +141,6 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 			}
 		}
 	}
-	for k, v := range mostWinHand {
-		mostWinrHandSlice = append(mostWinrHandSlice, hadnKV{k, v})
-	}
-	for k, v := range allWinRealRate {
-		tempRate := float64(v) / float64(allHandListOrigin[k])
-		allHandRateSlice = append(allHandRateSlice, realWinRateKV{k, tempRate})
-	}
 	for k, v := range winGradeList {
 		winGradeListSlice = append(winGradeListSlice, winnerKV{k, v})
 	}
@@ -186,50 +149,18 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 	sort.Slice(mostWinPlayerSlice, func(i, j int) bool {
 		return mostWinPlayerSlice[i].Value > mostWinPlayerSlice[j].Value
 	})
-	sort.Slice(mostWinrHandSlice, func(i, j int) bool { //所有获得胜利的具体手牌
-		return mostWinrHandSlice[i].Value > mostWinrHandSlice[j].Value
-	})
-	sort.Slice(allHandRateSlice, func(i, j int) bool { //所有手牌的胜率
-		return allHandRateSlice[i].Value > allHandRateSlice[j].Value
-	})
-	sort.Slice(winGradeListSlice, func(i, j int) bool { //所有牌力的胜率
-		return winGradeListSlice[i].Value > winGradeListSlice[j].Value
-	})
 	// 输出结果
 	fmt.Println("玩家ID和对应ID:") //debug
 	for k, v := range input.PlayerList {
 		fmt.Println(k, v.ID)
 	}
 	// fmt.Println(mostWinPlayer) //debug
-	// fmt.Println(mostWinHand) //debug
+	fmt.Println(mostWinHand)   //debug
 	fmt.Println("玩家胜利次数排序如下：") //debug
 	for i := 0; i < len(mostWinPlayerSlice); i++ {
 		fmt.Println(mostWinPlayerSlice[i].Key, mostWinPlayerSlice[i].Value)
-		for j := 0; j < len(input.PlayerList); j++ {
-			if mostWinPlayerSlice[i].Key == input.PlayerList[j].ID {
-				input.PlayerList[j].WinCount = mostWinPlayerSlice[i].Value
-				input.PlayerList[j].WinRate = float64(mostWinPlayerSlice[i].Value) / float64(input.RoundNumber)
-			}
-		}
 	}
-	if len(input.PlayerList) > 0 {
-		n := len(mostWinrHandSlice)
-		fmt.Println("获得过胜利的手牌组合数:", n)
-		if n > 50 {
-			n = 50
-		}
-		fmt.Println("胜利次数位于前列的手牌组合以及对应胜率:")
-		for i := 0; i < n; i++ { //输出具体的卡牌
-			fmt.Println(mostWinrHandSlice[i].Key, mostWinrHandSlice[i].Value, strconv.FormatFloat(float64(mostWinrHandSlice[i].Value)/float64(input.RoundNumber)*100, 'f', 4, 64)+"%")
-		}
-		//指定手牌的胜率
-		fmt.Println("指定手牌的胜率如下:")
-		for i := 0; i < len(input.PlayerList); i++ {
-			temp := mostWinHand[input.PlayerList[i].Hand.HandCard[0].CardTranslate()+input.PlayerList[i].Hand.HandCard[1].CardTranslate()] //指定手牌获得的胜利次数
-			realRate := float64(temp) / float64(input.RoundNumber)
-			fmt.Println(input.PlayerList[i].Hand.HandCard[0].CardTranslate()+input.PlayerList[i].Hand.HandCard[1].CardTranslate(), temp, strconv.FormatFloat(realRate*100, 'f', 4, 64)+"%")
-		}
-	}
+
 	fmt.Println("平局次数：", tieCount)
 	WebRes.DrawCount = tieCount
 	fmt.Println("成牌牌力分布统计：", winGradeList)
@@ -640,7 +571,16 @@ func DealCards(New52CardList []Card, playersNumber int) (resHandCard []HandCard,
 }
 
 // DealCards 发牌，返回玩家手牌和剩余牌  非常规发牌
-func ShortLocalDealCards(pubCard []Card, playeListIN []Players) (playeListOut []Players, resPublicCard []Card) {
+func ShortLocalDealCards(pubCard []Card, playeListINTemp []Players) (playeListOut []Players, resPublicCard []Card) {
+	var playeListIN []Players
+	for i := 0; i < len(playeListINTemp); i++ {
+		var playtmp Players
+		playtmp.ID = playeListINTemp[i].ID
+		playtmp.DisPlayName = playeListINTemp[i].DisPlayName
+		playtmp.Hand.HandCard = append(playtmp.Hand.HandCard, playeListINTemp[i].Hand.HandCard...)
+		playtmp.Hand.HandCard = sortCards(playtmp.Hand.HandCard)
+		playeListIN = append(playeListIN, playtmp)
+	}
 	var pubTempCard []Card
 	//校验pubCard是否合法
 	if len(pubCard) != 0 {
@@ -667,8 +607,16 @@ func ShortLocalDealCards(pubCard []Card, playeListIN []Players) (playeListOut []
 		}
 		ShortCard = append(ShortCard, playeListIN[i].Hand.HandCard[0], playeListIN[i].Hand.HandCard[1])
 	}
-	ShortCard = append(ShortCard, pubCard...)
+	for i := 0; i < len(pubCard); i++ {
+		if pubCard[i].Rank == 0 && pubCard[i].Suit == "?" {
+			continue
+		}
+		ShortCard = append(ShortCard, pubCard[i])
+	}
+	// fmt.Println("要被排除的牌:", len(ShortCard), ShortCard) //debug
 	short52Card := ShortOfShuffleCard(ShortCard)
+	// fmt.Println("剩余牌的长度", len(short52Card)) //debug
+
 	// 给每个玩家发牌
 	for i := 0; i < len(playeListIN); i++ {
 		if playeListIN[i].Hand.HandCard[0].Rank == 0 && playeListIN[i].Hand.HandCard[1].Rank == 0 { //将来也许可以改成一个
