@@ -65,12 +65,11 @@ type ExpectedProbability struct {
 	FourOfAKind   float64 `json:"fourofakind,omitempty"`
 	StraightFlush float64 `json:"straightflush,omitempty"`
 }
-type PracticeResDemo02 struct {
-	PlayerWinCount []PlayersRes   `json:"playerwincount"`       //统计玩家的获胜次数  按座次排序
-	WinGradeList   []WinGradeList `json:"wingradelist"`         //获胜的成牌牌力分布统计  按出现次数排序
-	DrawCount      int            `json:"drawcount"`            //平局次数
-	So169ComboList []So169Combo   `json:"so169combo,omitempty"` //169组so组合的胜率统计  按胜率排序
-	RoundNumber    int            `json:"roundnumber,omitempty"`
+type PracticeRes struct {
+	PlayersRes   []Players      `json:"playersres"`   //统计玩家的获胜次数  按座次排序
+	WinGradeList []WinGradeList `json:"wingradelist"` //获胜的成牌牌力分布统计  按出现次数排序
+	DrawCount    int            `json:"drawcount"`    //平局次数
+	// So169ComboList []So169Combo   `json:"so169combo,omitempty"` //169组so组合的胜率统计  按胜率排序
 }
 type PlayersRes struct {
 	PlayerID string  `json:"playerid"`

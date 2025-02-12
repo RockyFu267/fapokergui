@@ -275,3 +275,28 @@ func TestShuffleJudgeGUI01(t *testing.T) {
 	}
 
 }
+func TestHandWinRateSimulationWeb01(t *testing.T) {
+	// 设置测试数据
+	player1 := Players{ID: "1", Hand: HandCard{HandCard: []Card{{Rank: 13, Suit: "黑桃"}, {Rank: 13, Suit: "红桃"}}}}
+	player2 := Players{ID: "2", Hand: HandCard{HandCard: []Card{{Rank: 12, Suit: "黑桃"}, {Rank: 12, Suit: "红桃"}}}}
+	player3 := Players{ID: "3", Hand: HandCard{HandCard: []Card{{Rank: 14, Suit: "黑桃"}, {Rank: 14, Suit: "红桃"}}}}
+	player4 := Players{ID: "4", Hand: HandCard{HandCard: []Card{{Rank: 0, Suit: "?"}, {Rank: 0, Suit: "?"}}}}
+
+	input := HandConfig{
+		PlayerList: []Players{player1, player2, player3, player4},
+		// PublicCard:  []Card{{Rank: 14, Suit: "梅花"}, {Rank: 14, Suit: "方片"}, {Rank: 4, Suit: "黑桃"}, {Rank: 5, Suit: "红桃"}, {Rank: 6, Suit: "梅花"}},
+		PublicCard:  []Card{{Rank: 0, Suit: "?"}, {Rank: 0, Suit: "?"}, {Rank: 0, Suit: "?"}, {Rank: 0, Suit: "?"}, {Rank: 0, Suit: "?"}},
+		RoundNumber: 10000,
+		DebugSwitch: false,
+	}
+
+	// 调用被测方法
+	result, err := HandWinRateSimulationWeb01(input)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	fmt.Println(result.PlayersRes)
+	fmt.Println(result.DrawCount)
+	fmt.Println(result.WinGradeList)
+}
