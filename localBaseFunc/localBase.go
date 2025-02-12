@@ -74,7 +74,18 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 	// 模拟牌局
 	for i := 0; i < input.RoundNumber; i++ {
 		// fmt.Println("第" + strconv.Itoa(i+1) + "局")
-		winners := shuffleJudgeGUI01(input.PlayerList, input.PublicCard, input.DebugSwitch)
+		winners, gradeResTemp := shuffleJudgeGUI01(input.PlayerList, input.PublicCard, input.DebugSwitch)
+		for k, v := range gradeResTemp {
+			input.PlayerList[k].ExpectedProbability.HighCard = input.PlayerList[k].ExpectedProbability.HighCard + v.ExpectedProbability.HighCard
+			input.PlayerList[k].ExpectedProbability.Pair = input.PlayerList[k].ExpectedProbability.Pair + v.ExpectedProbability.Pair
+			input.PlayerList[k].ExpectedProbability.TwoPair = input.PlayerList[k].ExpectedProbability.TwoPair + v.ExpectedProbability.TwoPair
+			input.PlayerList[k].ExpectedProbability.Set = input.PlayerList[k].ExpectedProbability.Set + v.ExpectedProbability.Set
+			input.PlayerList[k].ExpectedProbability.Straight = input.PlayerList[k].ExpectedProbability.Straight + v.ExpectedProbability.Straight
+			input.PlayerList[k].ExpectedProbability.Flush = input.PlayerList[k].ExpectedProbability.Flush + v.ExpectedProbability.Flush
+			input.PlayerList[k].ExpectedProbability.FullHouse = input.PlayerList[k].ExpectedProbability.FullHouse + v.ExpectedProbability.FullHouse
+			input.PlayerList[k].ExpectedProbability.FourOfAKind = input.PlayerList[k].ExpectedProbability.FourOfAKind + v.ExpectedProbability.FourOfAKind
+			input.PlayerList[k].ExpectedProbability.StraightFlush = input.PlayerList[k].ExpectedProbability.StraightFlush + v.ExpectedProbability.StraightFlush
+		}
 		if len(winners) > 1 {
 			// fmt.Println("出现了多个玩家同时获得胜利的情况") //debug
 			tieCount++
@@ -191,12 +202,23 @@ func HandWinRateSimulationWeb01(input HandConfig) (WebRes PracticeRes, err error
 		}
 		WebRes.WinGradeList = append(WebRes.WinGradeList, tempWinGradeList)
 	}
+	for i := 0; i < len(input.PlayerList); i++ {
+		input.PlayerList[i].ExpectedProbability.HighCard = input.PlayerList[i].ExpectedProbability.HighCard / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.Pair = input.PlayerList[i].ExpectedProbability.Pair / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.TwoPair = input.PlayerList[i].ExpectedProbability.TwoPair / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.Set = input.PlayerList[i].ExpectedProbability.Set / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.Straight = input.PlayerList[i].ExpectedProbability.Straight / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.Flush = input.PlayerList[i].ExpectedProbability.Flush / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.FullHouse = input.PlayerList[i].ExpectedProbability.FullHouse / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.FourOfAKind = input.PlayerList[i].ExpectedProbability.FourOfAKind / float64(input.RoundNumber)
+		input.PlayerList[i].ExpectedProbability.StraightFlush = input.PlayerList[i].ExpectedProbability.StraightFlush / float64(input.RoundNumber)
+	}
 	WebRes.PlayersRes = input.PlayerList
 	return WebRes, nil
 }
 
 // 指定人数 洗牌，发牌，并比较谁的牌最大,并且可以选择指定手牌
-func shuffleJudgeGUI01(playlist []Players, pulibcCard []Card, DebugSwitch bool) (winner []Players) {
+func shuffleJudgeGUI01(playlist []Players, pulibcCard []Card, DebugSwitch bool) (winner []Players, playlistRes []Players) {
 	maxGrade := 0
 	maxCard5 := [5]int{0, 0, 0, 0, 0}
 	//开始发牌
@@ -217,6 +239,26 @@ func shuffleJudgeGUI01(playlist []Players, pulibcCard []Card, DebugSwitch bool) 
 		playerTemp[i].Grade, playerTemp[i].Card5 = Judge5From7(playerTemp[i].Card7)
 		if DebugSwitch { //debug
 			fmt.Println("player ", i, ": ", playerTemp[i].Grade, "-max-", playerTemp[i].Card5)
+		}
+		switch playerTemp[i].Grade {
+		case 0:
+			playerTemp[i].ExpectedProbability.HighCard = playerTemp[i].ExpectedProbability.HighCard + 1
+		case 1:
+			playerTemp[i].ExpectedProbability.Pair = playerTemp[i].ExpectedProbability.Pair + 1
+		case 2:
+			playerTemp[i].ExpectedProbability.TwoPair = playerTemp[i].ExpectedProbability.TwoPair + 1
+		case 3:
+			playerTemp[i].ExpectedProbability.Set = playerTemp[i].ExpectedProbability.Set + 1
+		case 4:
+			playerTemp[i].ExpectedProbability.Straight = playerTemp[i].ExpectedProbability.Straight + 1
+		case 5:
+			playerTemp[i].ExpectedProbability.Flush = playerTemp[i].ExpectedProbability.Flush + 1
+		case 6:
+			playerTemp[i].ExpectedProbability.FullHouse = playerTemp[i].ExpectedProbability.FullHouse + 1
+		case 7:
+			playerTemp[i].ExpectedProbability.FourOfAKind = playerTemp[i].ExpectedProbability.FourOfAKind + 1
+		case 8:
+			playerTemp[i].ExpectedProbability.StraightFlush = playerTemp[i].ExpectedProbability.StraightFlush + 1
 		}
 		if maxGrade == playerTemp[i].Grade {
 			for j := 0; j < 5; j++ {
@@ -270,7 +312,7 @@ func shuffleJudgeGUI01(playlist []Players, pulibcCard []Card, DebugSwitch bool) 
 	}
 	// fmt.Println("len2 ", len(winner)) //debug
 
-	return winner
+	return winner, playerTemp
 }
 
 // sortCards对[]Card数组进行排序

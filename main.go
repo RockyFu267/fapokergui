@@ -372,8 +372,17 @@ func main() {
 			resultButton := widget.NewButton((strconv.FormatFloat(guiRes.PlayersRes[rowIndex].WinRate*100, 'f', 3, 64) + "%"), func() {
 
 				fmt.Println("手牌结果被点击")
-
-				dialog.ShowInformation("详细结果", "\n\n\n\n--------------"+handConfig.PlayerList[rowIndex].ID, w)
+				resstring := "allin的成牌牌型概率：\n"
+				resstring = "高牌的概率：" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.HighCard*100, 'f', 3, 64) + "%\n"
+				resstring += "对子的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.Pair*100, 'f', 3, 64) + "%\n"
+				resstring += "两对的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.TwoPair*100, 'f', 3, 64) + "%\n"
+				resstring += "三条的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.Set*100, 'f', 3, 64) + "%\n"
+				resstring += "顺子的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.Straight*100, 'f', 3, 64) + "%\n"
+				resstring += "同花的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.Flush*100, 'f', 3, 64) + "%\n"
+				resstring += "葫芦的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.FullHouse*100, 'f', 3, 64) + "%\n"
+				resstring += "四条的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.FourOfAKind*100, 'f', 3, 64) + "%\n"
+				resstring += "同花顺的概率" + strconv.FormatFloat(handConfig.PlayerList[rowIndex].ExpectedProbability.StraightFlush*100, 'f', 3, 64) + "%\n"
+				dialog.ShowInformation("模拟10000详细结果", handConfig.PlayerList[rowIndex].DisPlayName+"\n"+resstring, w)
 			})
 
 			// **设置 resultButton 位置**
@@ -399,7 +408,7 @@ func main() {
 	//添加help按钮
 	var helpButton *widget.Button
 	helpButton = widget.NewButton("Help", func() {
-		dialog.ShowInformation("bug反馈、需求或建议", "Email：rocky267.foxmail.com\n"+"wechat：RoCkySImBa\n", w)
+		dialog.ShowInformation("Bug feedback, requirements or suggestions", "Email：rocky267.foxmail.com\n"+"WeChat：RoCkySImBa\n", w)
 	})
 	helpButton.Resize(fyne.NewSize(40, 20))
 	helpButton.Move(fyne.NewPos(0, 0))

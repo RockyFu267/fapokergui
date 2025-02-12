@@ -1,6 +1,7 @@
 package localbasefunc
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"testing"
@@ -262,8 +263,8 @@ func TestShuffleJudgeGUI01(t *testing.T) {
 		{Rank: 0, Suit: "?"},
 	}
 	var a, b, c int
-	for i := 0; i < 10000; i++ {
-		winner := shuffleJudgeGUI01(players, publicCards, false)
+	for i := 0; i < 100; i++ {
+		winner, playres := shuffleJudgeGUI01(players, publicCards, false)
 		if len(winner) > 1 {
 			c++
 			continue
@@ -273,8 +274,10 @@ func TestShuffleJudgeGUI01(t *testing.T) {
 		} else {
 			b++
 		}
+		fmt.Println(playres)
 	}
 	fmt.Println(a, b, c)
+
 	// winner := shuffleJudgeGUI01(players, publicCards, true)
 	// for i, p := range winner {
 	// 	fmt.Println("winner:", i)
@@ -330,7 +333,14 @@ func TestHandWinRateSimulationWeb01(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	fmt.Println(result.PlayersRes)
+	// fmt.Println(result.PlayersRes)
+	// 将结构体转换为JSON字节切片
+	jsonData, err := json.MarshalIndent(result.PlayersRes, "", "  ")
+	if err != nil {
+		fmt.Println("转换为JSON失败:", err)
+		return
+	}
+	fmt.Println(string(jsonData))
 	fmt.Println(result.DrawCount)
 	fmt.Println(result.WinGradeList)
 }
